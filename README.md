@@ -25,6 +25,7 @@ curl -fsSL https://raw.githubusercontent.com/bananacoffeecode/tempo-time-tracker
 1. Download the `.dmg` from the [Releases](../../releases) page
 2. Open the `.dmg` and drag **Tempo** into your Applications folder
 3. If macOS blocks the app, right-click it → **Open** → **Open**
+4. If you still see "Apple could not verify…", go to **System Settings → Privacy & Security**, scroll down and click **Open Anyway**
 
 ---
 
