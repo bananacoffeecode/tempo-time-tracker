@@ -6,11 +6,33 @@ A compact Mac menu bar app that tracks work sessions and logs them as events in 
 
 ## Installing
 
+### Homebrew (Recommended)
+
+```bash
+brew install --cask bananacoffeecode/tap/tempo
+```
+
+### Install Script
+
+Paste this in Terminal — downloads the latest release, removes the macOS quarantine flag, and moves the app to `/Applications`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bananacoffeecode/tempo-time-tracker/main/scripts/install.sh | bash
+```
+
+### Manual
+
 1. Download the `.dmg` from the [Releases](../../releases) page
 2. Open the `.dmg` and drag **Tempo** into your Applications folder
-3. Launch the app — it appears in your menu bar
-4. Enter your email and click **Continue**
-5. Click **Authorize with Google** and sign in with the Google account you want to log sessions to
+3. If macOS blocks the app, right-click it → **Open** → **Open**
+
+---
+
+Once installed:
+
+1. Launch Tempo — it appears in your menu bar
+2. Enter your email and click **Continue**
+3. Click **Authorize with Google** and sign in with the Google account you want to log sessions to
 
 > **Note:** You may see a "Google hasn't verified this app" warning. Click **Advanced → Go to Tempo (unsafe)** to proceed. This is expected for indie apps that haven't gone through Google's formal review.
 
