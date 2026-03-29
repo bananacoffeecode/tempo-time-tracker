@@ -2,6 +2,8 @@
 
 A compact Mac menu bar app that tracks work sessions and logs them as events in your Google Calendar.
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/sulakshanas)
+
 ---
 
 ## Installing
@@ -54,10 +56,6 @@ Once installed:
 - Your OAuth tokens are stored locally on your Mac in `~/Library/Application Support/time-tracker/`
 - The app only requests the `calendar.events` scope — it can create events but cannot read, modify, or delete existing ones
 - Disconnecting from Settings permanently deletes your stored tokens
-
----
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/sulakshanas)
 
 ---
 
