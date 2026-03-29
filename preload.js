@@ -1,0 +1,25 @@
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('tracker', {
+  startSession: (name, colorId) => ipcRenderer.invoke('start-session', { name, colorId }),
+  prepareStop: ()     => ipcRenderer.invoke('prepare-stop'),
+  logSession:  (data) => ipcRenderer.invoke('log-session', data),
+  authStatus: () => ipcRenderer.invoke('auth-status'),
+  startAuth: () => ipcRenderer.invoke('start-auth'),
+  onAuthComplete: (cb) => ipcRenderer.on('auth-complete', (e, data) => cb(data)),
+  onAuthError: (cb) => ipcRenderer.on('auth-error', (e, msg) => cb(msg)),
+  setWindowSize: (size) => ipcRenderer.invoke('set-window-size', size),
+  hideWindow: () => ipcRenderer.invoke('hide-window'),
+  moveWindowBy: (delta) => ipcRenderer.send('move-window-by', delta),
+  discardSession:      () => ipcRenderer.invoke('discard-session'),
+  getProfile:          () => ipcRenderer.invoke('get-profile'),
+  saveEmail:    (email) => ipcRenderer.invoke('save-email', email),
+  disconnectCalendar:  () => ipcRenderer.invoke('disconnect-calendar'),
+  quitApp:             () => ipcRenderer.invoke('quit-app'),
+  showOnboardMenu:     () => ipcRenderer.invoke('show-onboard-menu'),
+  showSettingsMenu:    () => ipcRenderer.invoke('show-settings-menu'),
+  getSettings:         () => ipcRenderer.invoke('get-settings'),
+  saveSettings: (data) => ipcRenderer.invoke('save-settings', data),
+  onWindowShow:    (cb) => ipcRenderer.on('window-will-show', () => cb()),
+  onTrayClickHide: (cb) => ipcRenderer.on('tray-click-hide',  () => cb()),
+});

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'">
+  <title>Tempo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="app-container">
+  <!-- Onboarding (shown on first launch) -->
+  <div id="onboarding" style="display:none">
+
+    <!-- Top-right: more options + quit -->
+    <div id="onboard-topbar">
+      <button id="onboard-menu-btn" class="icon-btn" title="More options"><span id="onboard-menu-icon"></span></button>
+      <button id="onboard-quit-btn" class="icon-btn" title="Quit Tempo"><span id="onboard-quit-icon"></span></button>
+    </div>
+
+    <!-- Step 1: Email entry -->
+    <div id="onboard-step-1" class="onboard-step">
+      <div class="onboard-icon-wrap">
+        <img src="../assets/icon.png" width="56" height="56" alt="Tempo" />
+      </div>
+      <h1 class="onboard-title">Tempo</h1>
+      <p class="onboard-sub">Log your sessions to your calendar</p>
+      <div class="onboard-form">
+        <label class="onboard-label" for="onboard-email">Your email address</label>
+        <input id="onboard-email" type="email" class="onboard-input" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <div id="onboard-no-creds" class="onboard-warning" style="display:none">
+        credentials.json not found — see README
+      </div>
+      <button id="onboard-continue-btn" class="btn-primary">Continue</button>
+    </div>
+
+    <!-- Step 2: Google Calendar auth -->
+    <div id="onboard-step-2" class="onboard-step" style="display:none">
+      <div class="onboard-step2-top">
+        <div class="onboard-icon-wrap">
+          <img src="../assets/icon.png" width="56" height="56" alt="Tempo" />
+        </div>
+        <h2 class="onboard-title">Connect Google Calendar</h2>
+        <p class="onboard-sub">Tempo will log sessions as calendar events</p>
+      </div>
+      <div class="onboard-step2-bottom">
+        <button id="onboard-auth-btn" class="btn-primary">Authorize with Google</button>
+        <p id="onboard-waiting" class="onboard-waiting" style="display:none">Opening browser&hellip; waiting for authorization</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Collapsed Bar (shown when body.collapsed) -->
+  <div id="collapsed-bar">
+    <div id="collapsed-body">
+      <span id="mini-name">READY</span>
+    </div>
+    <div id="collapsed-actions">
+      <!-- Idle: show START button -->
+      <button id="mini-start-btn" class="mini-pill-btn">Start</button>
+      <!-- Running: show timer + stop -->
+      <span id="mini-timer">00:00:00</span>
+      <div class="mini-divider"></div>
+      <button id="mini-stop-btn" title="Stop session"></button>
+      <button id="mini-close-btn" title="Close"></button>
+    </div>
+  </div>
+
+  <!-- Title Bar (entire bar is the collapse toggle) -->
+  <div id="titlebar">
+    <span id="app-title">Tempo</span>
+    <div id="titlebar-right">
+      <button id="settings-btn" title="Settings"></button>
+      <button id="collapse-btn" title="Collapse"></button>
+      <button id="close-btn" title="Close"></button>
+    </div>
+  </div>
+
+  <!-- Settings Panel -->
+  <div id="settings-panel" style="display:none">
+    <div id="settings-header">
+      <button id="settings-back-btn" class="icon-btn" title="Back"></button>
+      <span class="settings-title">Settings</span>
+      <div style="display:flex;align-items:center;gap:2px;">
+        <button id="settings-menu-btn" class="icon-btn" title="More options"><span id="settings-menu-icon"></span></button>
+        <button id="settings-close-btn" class="icon-btn" title="Close"></button>
+      </div>
+    </div>
+    <div id="settings-body">
+      <div class="settings-section">
+        <div class="settings-section-label">
+          <span id="settings-calendar-icon" class="settings-section-icon"></span>Google Calendar
+        </div>
+        <input id="settings-email-display" class="settings-email-input" type="text" readonly tabindex="-1" />
+      </div>
+      <!-- Default session name hidden for now — preserved for future use -->
+      <div style="display:none">
+        <div class="settings-section">
+          <div class="settings-section-label">
+            <span id="settings-name-icon" class="settings-section-icon"></span>Default session name
+          </div>
+          <input id="settings-default-name" class="settings-text-input" type="text" placeholder="work session" maxlength="80" spellcheck="false" />
+        </div>
+      </div>
+    </div>
+    <div id="settings-footer">
+      <button id="settings-logout-btn" class="settings-logout-btn">Logout</button>
+    </div>
+  </div>
+
+  <!-- Review Panel (post-session time adjuster) -->
+  <div id="review-panel" style="display:none">
+    <div id="review-header">
+      <button id="review-back-btn" class="icon-btn" title="Discard"></button>
+      <span id="review-session-label" class="settings-title"></span>
+      <button id="review-close-btn" class="icon-btn" title="Close"></button>
+    </div>
+    <div id="review-body">
+      <div id="time-inputs-row">
+        <div class="time-field">
+          <label class="time-field-label">Start</label>
+          <div class="time-picker-wrap" id="start-picker-wrap"></div>
+        </div>
+        <div class="time-field">
+          <label class="time-field-label">End</label>
+          <div class="time-picker-wrap" id="end-picker-wrap"></div>
+        </div>
+      </div>
+      <input type="text" id="review-name-input" class="review-name-input" maxlength="80" spellcheck="false" placeholder="Work session">
+      <div id="review-color-picker"></div>
+      <div id="review-btn-row">
+        <button id="btn-log" class="btn-primary">Log to Calendar</button>
+        <button id="btn-log-discard" class="icon-btn-square" title="Discard session"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Tracker UI -->
+  <div id="content" style="display:none">
+    <div id="timer" class="idle">00:00:00</div>
+    <input id="session-name" type="text" placeholder="Add session title" maxlength="80" spellcheck="false" />
+    <div id="color-picker"></div>
+    <div id="btn-row-idle">
+      <button class="btn btn-primary" id="btn-start">Start</button>
+      <button id="btn-log-event" class="btn-adjust">Log an event</button>
+    </div>
+    <div id="btn-row-running">
+      <button class="btn btn-done" id="btn-done">Done</button>
+      <button class="btn btn-adjust" id="btn-adjust">Adjust</button>
+      <button id="btn-discard" title="Discard session"></button>
+    </div>
+  </div>
+
+  <!-- Flash message -->
+  <div id="flash"></div>
+
+  <!-- Confetti canvas for celebration -->
+  <canvas id="confetti-canvas"></canvas>
+
+</div><!-- #app-container -->
+
+  <script src="icons.js"></script>
+  <script src="timepicker.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

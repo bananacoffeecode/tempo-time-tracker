@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TimePicker Tests</title>
+  <style>
+    body { font-family: 'DM Sans', system-ui, sans-serif; padding: 20px; background: #f9f9f9; }
+    h1 { font-size: 18px; margin-bottom: 16px; }
+    .result { margin: 6px 0; font-size: 14px; }
+    .pass { color: #0b8043; }
+    .fail { color: #d50000; font-weight: bold; }
+    hr { margin: 20px 0; border: none; border-top: 1px solid #e0e0e0; }
+    #mount { display: flex; gap: 20px; margin-top: 20px; }
+    .time-picker-wrap {
+      background: #fff; border: 1.5px solid #e0e0e0; border-radius: 20px;
+      padding: 13px 16px; display: flex; align-items: center; gap: 8px;
+      position: relative; width: 160px;
+    }
+    .tp-face { flex:1; font-size:16px; font-weight:500; cursor:pointer; }
+    .tp-clock-btn { cursor:pointer; display:flex; align-items:center; color:#6B6B6B; background:none; border:none; }
+    .tp-dropdown {
+      display: none; position: absolute;
+      top: calc(100% + 6px); left: 0; right: 0;
+      background: #fff; border: 1.5px solid #e0e0e0;
+      border-radius: 16px; padding: 12px 10px;
+      z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+      flex-direction: row; align-items: center; justify-content: center; gap: 4px;
+    }
+    .tp-col { display:flex; flex-direction:column; align-items:center; gap:2px; }
+    .tp-arrow { background:none; border:none; color:#6B6B6B; cursor:pointer; padding:2px 6px; border-radius:6px; }
+    .tp-num { width:36px; height:36px; text-align:center; border:1.5px solid #e0e0e0; border-radius:10px; font-size:16px; font-weight:600; outline:none; }
+    .tp-sep { font-size:18px; font-weight:700; padding:0 2px; margin-top:22px; }
+    .tp-ampm-col { display:flex; flex-direction:column; gap:4px; margin-left:6px; }
+    .tp-ampm-btn { padding:5px 8px; border-radius:8px; border:1.5px solid #e0e0e0; background:#fff; font-size:12px; font-weight:700; color:#6B6B6B; cursor:pointer; }
+    .tp-ampm-btn.tp-active { background:#7CA903; color:white; border-color:#7CA903; }
+  </style>
+</head>
+<body>
+  <h1>TimePicker Unit Tests</h1>
+  <div id="results"></div>
+  <hr>
+  <p style="font-size:13px;color:#666">Live pickers (for manual testing):</p>
+  <div id="mount">
+    <div id="wrap-a" class="time-picker-wrap"></div>
+    <div id="wrap-b" class="time-picker-wrap"></div>
+  </div>
+
+  <script src="icons.js"></script>
+  <script src="timepicker.js"></script>
+  <script>
+    const out = document.getElementById('results');
+    let passed = 0, failed = 0;
+
+    function assert(label, condition) {
+      const div = document.createElement('div');
+      div.className = 'result ' + (condition ? 'pass' : 'fail');
+      div.textContent = (condition ? '✓ PASS' : '✗ FAIL') + '  ' + label;
+      out.appendChild(div);
+      if (condition) passed++; else failed++;
+    }
+
+    // Helper: get displayed face text
+    function face(tp) { return tp.face.textContent; }
+
+    // ── Test 1: Constructor parses 24h correctly
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '14:30', () => {});
+      assert('constructor: 14:30 → face shows "02:30 PM"', face(tp) === '02:30 PM');
+      assert('constructor: hour24 = 14', tp.hour24 === 14);
+      assert('constructor: minute = 30', tp.minute === 30);
+    }
+
+    // ── Test 2: midnight (00:00) → 12 AM
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '00:00', () => {});
+      assert('constructor: 00:00 → face shows "12:00 AM"', face(tp) === '12:00 AM');
+    }
+
+    // ── Test 3: noon (12:00) → 12 PM
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '12:00', () => {});
+      assert('constructor: 12:00 → face shows "12:00 PM"', face(tp) === '12:00 PM');
+    }
+
+    // ── Test 4: setValue
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '09:15', () => {});
+      tp.setValue('23:45');
+      assert('setValue: 23:45 → face shows "11:45 PM"', face(tp) === '11:45 PM');
+      assert('setValue: hour24 = 23', tp.hour24 === 23);
+      assert('setValue: minute = 45', tp.minute === 45);
+    }
+
+    // ── Test 5: _adjustHour wraps 12→1 within PM
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '12:00', () => {}); // 12 PM
+      tp._adjustHour(1);
+      assert('_adjustHour: 12 PM +1 → 01:00 PM', face(tp) === '01:00 PM');
+    }
+
+    // ── Test 6: _adjustHour wraps 1→12 within AM
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '01:00', () => {}); // 1 AM
+      tp._adjustHour(-1);
+      assert('_adjustHour: 01 AM -1 → 12:00 AM', face(tp) === '12:00 AM');
+    }
+
+    // ── Test 7: _adjustHour doesn't cross AM/PM
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '11:00', () => {}); // 11 AM
+      tp._adjustHour(1);
+      assert('_adjustHour: 11 AM +1 → 12:00 AM (wraps within AM)', face(tp) === '12:00 AM');
+    }
+
+    // ── Test 8: _adjustMin steps of 5
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '10:00', () => {});
+      tp._adjustMin(1);
+      assert('_adjustMin: 00 +1 → 05', tp.minute === 5);
+      tp._adjustMin(1);
+      assert('_adjustMin: 05 +1 → 10', tp.minute === 10);
+    }
+
+    // ── Test 9: _adjustMin wraps 55 → 0
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '10:55', () => {});
+      tp._adjustMin(1);
+      assert('_adjustMin: 55 +1 → 0 (wrap)', tp.minute === 0);
+    }
+
+    // ── Test 10: _adjustMin wraps 0 → 55
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '10:00', () => {});
+      tp._adjustMin(-1);
+      assert('_adjustMin: 0 -1 → 55 (wrap)', tp.minute === 55);
+    }
+
+    // ── Test 11: _setAMPM toggles correctly
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '09:30', () => {}); // 9 AM
+      tp._setAMPM(true); // switch to PM
+      assert('_setAMPM: 9 AM → 9 PM', face(tp) === '09:30 PM');
+      assert('_setAMPM: hour24 = 21', tp.hour24 === 21);
+      tp._setAMPM(false); // switch back to AM
+      assert('_setAMPM: 9 PM → 9 AM', face(tp) === '09:30 AM');
+    }
+
+    // ── Test 12: _setAMPM no-op if already same
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '14:00', () => {}); // 2 PM
+      tp._setAMPM(true); // already PM
+      assert('_setAMPM: already PM, no change', tp.hour24 === 14);
+    }
+
+    // ── Test 13: onChange callback fires with correct h24
+    {
+      const el = document.createElement('div');
+      let lastVal = null;
+      const tp = new TimePicker(el, '10:00', (v) => { lastVal = v; });
+      tp._adjustHour(1);
+      assert('onChange: fires with "11:00"', lastVal === '11:00');
+    }
+
+    // ── Test 14: onChange fires on minute adjust
+    {
+      const el = document.createElement('div');
+      let lastVal = null;
+      const tp = new TimePicker(el, '10:00', (v) => { lastVal = v; });
+      tp._adjustMin(1);
+      assert('onChange: minute adjust fires "10:05"', lastVal === '10:05');
+    }
+
+    // ── Test 15: open/close
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '10:00', () => {});
+      tp.open();
+      assert('open: dropdown display is "flex"', tp.dropdown.style.display === 'flex');
+      tp.close();
+      assert('close: dropdown display is "none"', tp.dropdown.style.display === 'none');
+    }
+
+    // ── Test 16: toggle
+    {
+      const el = document.createElement('div');
+      const tp = new TimePicker(el, '10:00', () => {});
+      tp.toggle();
+      assert('toggle: opens', tp.dropdown.style.display === 'flex');
+      tp.toggle();
+      assert('toggle: closes', tp.dropdown.style.display === 'none');
+    }
+
+    // ── Summary
+    const summary = document.createElement('div');
+    summary.style.cssText = 'margin-top:16px;font-weight:700;font-size:15px;';
+    summary.style.color = failed === 0 ? '#0b8043' : '#d50000';
+    summary.textContent = `${passed} passed, ${failed} failed`;
+    out.appendChild(summary);
+
+    // Mount live pickers for manual testing
+    const pickerA = new TimePicker(document.getElementById('wrap-a'), '09:30', (v) => console.log('A:', v));
+    const pickerB = new TimePicker(document.getElementById('wrap-b'), '17:45', (v) => console.log('B:', v));
+  </script>
+</body>
+</html>
