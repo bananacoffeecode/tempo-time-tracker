@@ -43,11 +43,7 @@ Once installed:
 
 ## Using the app
 
-- Click the **menu bar icon** to show or hide the widget
-- Type a **session name**, pick a **colour**, then click **START**
-- Click **DONE** when finished — the event is instantly logged to your Google Calendar
-- Click the **trash icon** to discard a session without logging it
-- Click the **gear icon** to open Settings and disconnect your Google account
+Refer documentation: https://www.notion.so/sulakshana/How-to-use-33201e573e7c80e7b909ce50fd8dbf64
 
 ---
 
