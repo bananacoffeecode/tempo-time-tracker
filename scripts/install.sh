@@ -16,7 +16,7 @@ echo -e "${GREEN}Installing Tempo...${NC}"
 echo ""
 
 # Detect architecture
-VERSION="1.0.0"
+VERSION="1.1.0"
 ARCH=$(uname -m)
 if [ "$ARCH" = "arm64" ]; then
   ASSET="Tempo-${VERSION}-arm64.dmg"
