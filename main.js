@@ -1,6 +1,6 @@
 const { app, BrowserWindow, Tray, nativeImage, ipcMain, screen, Menu, shell } = require('electron');
 const path = require('path');
-const { hasValidToken, startOAuthFlow, loadCredentials,
+const { hasValidToken, startOAuthFlow, exchangeManualCode, loadCredentials,
         getUserEmail, setUserEmail, revokeToken } = require('./auth');
 const { createEvent } = require('./calendar');
 
@@ -9,8 +9,6 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 }
 
-// Hide from dock — menu bar app only
-app.dock?.hide();
 
 let tray = null;
 let win = null;
@@ -154,7 +152,9 @@ ipcMain.handle('auth-status', () => {
 
 ipcMain.handle('start-auth', async (event) => {
   try {
-    await startOAuthFlow();
+    await startOAuthFlow({
+      onUrl: (url) => event.sender.send('auth-url', url),
+    });
     event.sender.send('auth-complete', { success: true });
     return { success: true };
   } catch (err) {
@@ -170,6 +170,15 @@ ipcMain.handle('get-profile', () => ({
 }));
 ipcMain.handle('save-email', (e, email) => { setUserEmail(email); return { success: true }; });
 ipcMain.handle('disconnect-calendar', async () => { await revokeToken(); return { success: true }; });
+
+ipcMain.handle('exchange-manual-code', async (e, code) => {
+  try {
+    await exchangeManualCode(code);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
 ipcMain.handle('quit-app', () => { isQuitting = true; app.quit(); });
 
 function buildAppMenu() {
@@ -194,8 +203,9 @@ ipcMain.handle('start-session', (event, { name, colorId }) => {
   sessionColorId = colorId;
   if (trayInterval) clearInterval(trayInterval);
   trayInterval = setInterval(() => {
+    if (!tray || tray.isDestroyed()) { clearInterval(trayInterval); trayInterval = null; return; }
     const elapsed = Math.floor((Date.now() - sessionStart.getTime()) / 1000);
-    tray.setTitle(` ${(sessionName || 'work session').toLowerCase()} • ${formatTrayTime(elapsed)}`);
+    tray.setTitle(` ${formatTrayTime(elapsed)}`);
   }, 100);
   return { started: true, time: sessionStart.toISOString() };
 });
@@ -240,6 +250,10 @@ ipcMain.handle('save-settings', (e, { defaultSessionName }) => {
 });
 
 app.whenReady().then(() => {
+  if (app.dock) {
+    app.dock.setIcon(path.join(__dirname, 'assets', 'icon.png'));
+    app.dock.show();
+  }
   createWindow();
   createTray();
 
@@ -255,7 +269,27 @@ app.on('window-all-closed', (e) => {
   e.preventDefault(); // Keep running in tray
 });
 
+app.on('activate', () => {
+  if (!win || win.isDestroyed()) return;
+  if (win.isVisible()) {
+    win.webContents.send('tray-click-hide');
+  } else {
+    const store = getSettingsStore();
+    const savedX = store.get('windowX');
+    const savedY = store.get('windowY');
+    if (savedX !== undefined && savedY !== undefined) {
+      win.setPosition(savedX, savedY, false);
+    } else {
+      positionWindow();
+    }
+    win.webContents.send('window-will-show');
+    win.show();
+    win.focus();
+  }
+});
+
 app.on('before-quit', () => {
   isQuitting = true;
+  if (trayInterval) { clearInterval(trayInterval); trayInterval = null; }
   tray?.destroy();
 });

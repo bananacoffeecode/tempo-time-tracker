@@ -22,4 +22,6 @@ contextBridge.exposeInMainWorld('tracker', {
   saveSettings: (data) => ipcRenderer.invoke('save-settings', data),
   onWindowShow:    (cb) => ipcRenderer.on('window-will-show', () => cb()),
   onTrayClickHide: (cb) => ipcRenderer.on('tray-click-hide',  () => cb()),
+  exchangeManualCode: (code) => ipcRenderer.invoke('exchange-manual-code', code),
+  onAuthUrl: (cb) => ipcRenderer.on('auth-url', (e, url) => cb(url)),
 });

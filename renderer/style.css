@@ -494,6 +494,30 @@ body.running #mini-start-btn {
   color: var(--text-secondary);
 }
 
+.onboard-manual-hint {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 10px;
+  text-align: center;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 11px;
+  color: var(--green);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.onboard-manual-error {
+  font-size: 11px;
+  color: #e05;
+  margin-top: 6px;
+  text-align: center;
+}
+
 .onboard-warning {
   font-size: 12px;
   color: #92400e;

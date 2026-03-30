@@ -17,6 +17,7 @@ function getCredentialsPath() {
 }
 
 let store;
+let pendingOAuthClient = null; // holds the client during an active auth flow
 
 function getStore() {
   if (!store) {
@@ -81,7 +82,7 @@ function getAuthenticatedClient() {
   return oauth2Client;
 }
 
-function startOAuthFlow() {
+function startOAuthFlow({ onUrl } = {}) {
   return new Promise((resolve, reject) => {
     const creds = loadCredentials();
     if (!creds) {
@@ -100,12 +101,16 @@ function startOAuthFlow() {
         creds.client_secret,
         redirectUri
       );
+      pendingOAuthClient = oauth2Client;
 
       const authUrl = oauth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES,
         prompt: 'consent',
       });
+
+      // Emit URL to caller before opening browser
+      if (onUrl) onUrl(authUrl);
 
       // Open browser
       shell.openExternal(authUrl);
@@ -241,5 +246,13 @@ async function revokeToken() {
   getStore().delete('userEmail');
 }
 
-module.exports = { hasValidToken, getAuthenticatedClient, startOAuthFlow, loadCredentials,
-                   getUserEmail, setUserEmail, revokeToken };
+async function exchangeManualCode(code) {
+  if (!pendingOAuthClient) throw new Error('No active auth flow. Click "Authorize with Google" first.');
+  const { tokens } = await pendingOAuthClient.getToken(code.trim());
+  getStore().set('tokens', tokens);
+  pendingOAuthClient = null;
+  return tokens;
+}
+
+module.exports = { hasValidToken, getAuthenticatedClient, startOAuthFlow, exchangeManualCode,
+                   loadCredentials, getUserEmail, setUserEmail, revokeToken };

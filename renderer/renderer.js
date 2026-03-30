@@ -502,16 +502,30 @@ document.getElementById('settings-menu-btn').addEventListener('click', (e) => {
   window.tracker.showSettingsMenu();
 });
 
+const onboardManualWrap   = document.getElementById('onboard-manual-wrap');
+const onboardAuthUrlLink  = document.getElementById('onboard-auth-url-link');
+
 onboardAuthBtn.addEventListener('click', async () => {
-  onboardAuthBtn.disabled    = true;
-  onboardAuthBtn.textContent = 'Connecting...';
-  onboardWaiting.style.display = 'block';
+  onboardAuthBtn.disabled          = true;
+  onboardAuthBtn.textContent       = 'Connecting...';
+  onboardWaiting.style.display     = 'block';
   const result = await window.tracker.startAuth();
   if (!result?.success) {
-    onboardAuthBtn.disabled      = false;
-    onboardAuthBtn.textContent   = 'Retry';
-    onboardWaiting.style.display = 'none';
+    onboardAuthBtn.disabled          = false;
+    onboardAuthBtn.textContent       = 'Retry';
+    onboardWaiting.style.display     = 'none';
+    onboardManualWrap.style.display  = 'none';
   }
+});
+
+window.tracker.onAuthUrl((url) => {
+  onboardAuthUrlLink.href = url;
+  onboardManualWrap.style.display = 'block';
+});
+
+onboardAuthUrlLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.open(onboardAuthUrlLink.href);
 });
 
 window.tracker.onAuthComplete(() => {
@@ -520,9 +534,10 @@ window.tracker.onAuthComplete(() => {
 });
 
 window.tracker.onAuthError(() => {
-  onboardAuthBtn.disabled      = false;
-  onboardAuthBtn.textContent   = 'Retry';
-  onboardWaiting.style.display = 'none';
+  onboardAuthBtn.disabled          = false;
+  onboardAuthBtn.textContent       = 'Retry';
+  onboardWaiting.style.display     = 'none';
+  onboardManualWrap.style.display  = 'none';
 });
 
 // ── Settings events ──────────────────────────────
