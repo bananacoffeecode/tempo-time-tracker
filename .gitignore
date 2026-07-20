@@ -1,11 +1,19 @@
-# Dependencies
-node_modules/
+# Xcode
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
 
-# Google OAuth credentials — NEVER commit these
-credentials.json
+# Build
+build/
 
-# Build output
-dist/
+# Credentials — keep real values local only
+Tempo/Auth/Credentials.swift
 
 # macOS
 .DS_Store
