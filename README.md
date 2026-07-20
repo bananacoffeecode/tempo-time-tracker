@@ -16,7 +16,7 @@ brew install --cask bananacoffeecode/tap/tempo
 
 ### Install Script
 
-Paste this in Terminal — downloads the latest release, removes the macOS quarantine flag, and moves the app to `/Applications`:
+Paste this in Terminal. It downloads the latest release, removes the macOS quarantine flag, and moves the app to `/Applications`:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/bananacoffeecode/tempo-time-tracker/main/scripts/install.sh | bash
@@ -33,7 +33,7 @@ curl -fsSL https://raw.githubusercontent.com/bananacoffeecode/tempo-time-tracker
 
 Once installed:
 
-1. Launch Tempo — it appears in your menu bar
+1. Launch Tempo, and it appears in your menu bar
 2. Enter your email and click **Continue**
 3. Click **Authorize with Google** and sign in with the Google account you want to log sessions to
 
