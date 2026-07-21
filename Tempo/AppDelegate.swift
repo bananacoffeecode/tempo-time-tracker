@@ -29,6 +29,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         // session, close button).
         viewModel.onRequestOpen = { [weak self] in self?.showPopover() }
         viewModel.onRequestClose = { [weak self] in self?.closePopover() }
+
+        // First run (before the user has connected a calendar): surface the
+        // popover automatically so the menu-bar app isn't invisible and the
+        // "Welcome to Tempo" screen appears right away.
+        if case .onboarding = viewModel.state {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+                self?.showPopover()
+            }
+        }
     }
 
     // MARK: - Status Bar
