@@ -19,7 +19,7 @@ brew install --cask bananacoffeecode/tap/tempo
 Paste this in Terminal. It downloads the latest release, removes the macOS quarantine flag, and moves the app to `/Applications`:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/bananacoffeecode/tempo-time-tracker/main/scripts/install.sh | bash
+curl -fsSL https://tempotimetracker.in/install.sh | bash
 ```
 
 ### Manual
