@@ -15,17 +15,12 @@ echo ""
 echo -e "${GREEN}Installing Tempo...${NC}"
 echo ""
 
-# Detect architecture
-VERSION="1.1.0"
+# Universal build: a single asset named Tempo.dmg on the latest release.
 ARCH=$(uname -m)
-if [ "$ARCH" = "arm64" ]; then
-  ASSET="Tempo-${VERSION}-arm64.dmg"
-else
-  ASSET="Tempo-${VERSION}.dmg"
-fi
+ASSET="Tempo.dmg"
 
 echo -e "${GREY}→ Detected architecture: $ARCH${NC}"
-echo -e "${GREY}→ Downloading $ASSET from latest release...${NC}"
+echo -e "${GREY}→ Downloading $ASSET from the latest release...${NC}"
 
 TMP_DIR=$(mktemp -d)
 DMG_PATH="$TMP_DIR/$ASSET"
