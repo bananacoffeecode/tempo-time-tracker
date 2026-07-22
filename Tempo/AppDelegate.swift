@@ -49,8 +49,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         guard let button = statusItem.button else { return }
         button.image = NSImage(systemSymbolName: "clock", accessibilityDescription: "Tempo")
         button.imagePosition = .imageLeft
-        button.action = #selector(togglePopover(_:))
+        button.action = #selector(statusItemClicked)
         button.target = self
+        // Left-click toggles the popover; right-click (or control-click) opens a
+        // menu with Quit, so the app can be quit and then uninstalled.
+        button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+    }
+
+    @objc private func statusItemClicked() {
+        let event = NSApp.currentEvent
+        if event?.type == .rightMouseUp || event?.modifierFlags.contains(.control) == true {
+            showStatusMenu()
+        } else {
+            togglePopover(nil)
+        }
+    }
+
+    private func showStatusMenu() {
+        if popover.isShown { closePopover() }
+        let menu = NSMenu()
+        menu.addItem(withTitle: "Quit Tempo",
+                     action: #selector(NSApplication.terminate(_:)),
+                     keyEquivalent: "q")
+        statusItem.menu = menu
+        statusItem.button?.performClick(nil)   // shows the menu under the icon
+        statusItem.menu = nil                  // restore left-click toggling
     }
 
     func updateStatusTitle(_ title: String) {

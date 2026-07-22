@@ -77,6 +77,20 @@ struct SettingsView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
 
+            Divider().padding(.horizontal, 20).padding(.vertical, 12)
+
+            Button {
+                NSApplication.shared.terminate(nil)
+            } label: {
+                Label("Quit Tempo", systemImage: "power")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 6)
+            }
+            .buttonStyle(TempoLinkButtonStyle())
+            .padding(.horizontal, 16)
+
             Spacer(minLength: 0)
         }
         .padding(.top, 4)
